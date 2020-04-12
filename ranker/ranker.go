@@ -3,6 +3,7 @@ package ranker
 import (
 	"github.com/otz1/pr/dal"
 	"github.com/otz1/pr/entity"
+	"sort"
 )
 
 // contains the series of passes that are executed on each result
@@ -19,12 +20,18 @@ type RankedResult struct {
 type ResultRanker struct{}
 
 func (r *ResultRanker) Rank(resultSet *dal.SearchResultSet) {
-	for _, result := range resultSet.Results {
-		scoreResult(RankedResult{
+	scoredResultSet := make([]RankedResult, len(resultSet.Results))
+	for idx, result := range resultSet.Results {
+		scoredResultSet[idx] = scoreResult(RankedResult{
 			originalResult: result,
 			score:          0,
 		})
 	}
+
+	// sort by the result scores
+	sort.Slice(resultSet.Results[:], func(i int, j int) bool {
+		return scoredResultSet[i].score < scoredResultSet[j].score
+	})
 }
 
 func scoreResult(result RankedResult) RankedResult {
