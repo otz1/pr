@@ -24,7 +24,7 @@ func (r *ResultRanker) Rank(resultSet []entity.ScrapeResult) []entity.RankedSear
 
 	// sort by the result scores
 	sort.Slice(results[:], func(i int, j int) bool {
-		return results[i].Score < results[j].Score
+		return results[i].Score > results[j].Score
 	})
 
 	return results
