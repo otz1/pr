@@ -8,7 +8,9 @@ import "github.com/otz1/pr/entity"
 // at the moment the current way this works is that
 // any result from a search source, e.g. yahoo or ddg gets
 // ranked higher.
-type sourceRanker struct {}
+type sourceRanker struct {
+	basicRanker
+}
 
 func sourceRank(source entity.ScrapeSource) int {
 	switch source {
@@ -23,7 +25,7 @@ func sourceRank(source entity.ScrapeSource) int {
 	}
 }
 
-func (s *sourceRanker) Score(result entity.RankedSearchResult) entity.RankedSearchResult {
+func (s *sourceRanker) ScoreResult(result entity.RankedSearchResult) entity.RankedSearchResult {
 	newScore := result.Score
 	newScore += sourceRank(result.Result.Source)
 	return entity.RankedSearchResult{
@@ -32,7 +34,16 @@ func (s *sourceRanker) Score(result entity.RankedSearchResult) entity.RankedSear
 	}
 }
 
+func (s *sourceRanker) Score(resultsToRank []entity.RankedSearchResult) []entity.RankedSearchResult {
+	for i, result := range resultsToRank {
+		resultsToRank[i].Score += sourceRank(result.Result.Source)
+	}
+	return resultsToRank
+}
+
 func newSourceRanker() *sourceRanker {
-	return &sourceRanker{}
+	return &sourceRanker{
+		newBasicRanker(),
+	}
 }
 

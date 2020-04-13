@@ -28,7 +28,7 @@ func (f *FetchResource) Fetch(query string) entity.PageRankResponse {
 		scrapedResults := f.scraperService.Scrape(query)
 
 		// 5. then we rank the results (should we do this every time? probably not)
-		rankedResults := f.rankerService.Rank(scrapedResults.Results)
+		rankedResults := f.rankerService.Rank(query, scrapedResults.Results)
 		resultSet = entity.BuildSearchResultSet(rankedResults)
 	}
 
@@ -36,9 +36,6 @@ func (f *FetchResource) Fetch(query string) entity.PageRankResponse {
 	//    these results are stored in the database.
 	// we can do this asynchronously?
 	go f.cacheService.Store(query, resultSet)
-
-	// 6. finally these results are given to the user.
-	log.Println(resultSet)
 
 	return entity.PageRankResponse{
 		Results: resultSet.Results,

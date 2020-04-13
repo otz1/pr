@@ -9,32 +9,42 @@ import (
 // that affect the score of the individual result
 var scoringPasses = []resultRanker{
 	newSourceRanker(),
+	newTitleRanker(),
 }
 
 type ResultRanker struct{}
 
-func (r *ResultRanker) Rank(resultSet []entity.ScrapeResult) []entity.RankedSearchResult {
-	results := make([]entity.RankedSearchResult, len(resultSet))
-	for idx, result := range resultSet {
-		results[idx] = scoreResult(entity.RankedSearchResult{
+// buildRankedResultSet ...
+func buildRankedResultSet(set []entity.ScrapeResult) []entity.RankedSearchResult {
+	rankedResults := make([]entity.RankedSearchResult, len(set))
+	for i, result := range set {
+		rankedResults[i] = entity.RankedSearchResult{
 			Result: result,
-			Score:          0,
-		})
+			Score:  0,
+		}
+	}
+	return rankedResults
+}
+
+func (r *ResultRanker) Rank(query string, resultSet []entity.ScrapeResult) []entity.RankedSearchResult {
+	resultsToRank := buildRankedResultSet(resultSet)
+
+	for _, pass := range scoringPasses {
+		pass.SetContext(query)
+		resultsToRank = pass.Score(resultsToRank[:])
 	}
 
-	// sort by the result scores
-	sort.Slice(results[:], func(i int, j int) bool {
-		return results[i].Score > results[j].Score
+	// sort by the result scores from highest to lowest.
+	sort.Slice(resultsToRank[:], func(i int, j int) bool {
+		return resultsToRank[i].Score > resultsToRank[j].Score
 	})
 
-	return results
+	return resultsToRank
 }
 
 func scoreResult(result entity.RankedSearchResult) entity.RankedSearchResult {
 	var scoredResult = result
-	for _, pass := range scoringPasses {
-		scoredResult = pass.Score(result)
-	}
+
 	return scoredResult
 }
 
