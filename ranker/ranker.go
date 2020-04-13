@@ -1,7 +1,6 @@
 package ranker
 
 import (
-	"github.com/otz1/pr/dal"
 	"github.com/otz1/pr/entity"
 	"sort"
 )
@@ -12,29 +11,26 @@ var scoringPasses = []resultRanker{
 	newSourceRanker(),
 }
 
-type RankedResult struct {
-	originalResult entity.ScrapeResult
-	score          int
-}
-
 type ResultRanker struct{}
 
-func (r *ResultRanker) Rank(resultSet *dal.SearchResultSet) {
-	scoredResultSet := make([]RankedResult, len(resultSet.Results))
-	for idx, result := range resultSet.Results {
-		scoredResultSet[idx] = scoreResult(RankedResult{
-			originalResult: result,
-			score:          0,
+func (r *ResultRanker) Rank(resultSet []entity.ScrapeResult) []entity.RankedSearchResult {
+	results := make([]entity.RankedSearchResult, len(resultSet))
+	for idx, result := range resultSet {
+		results[idx] = scoreResult(entity.RankedSearchResult{
+			Result: result,
+			Score:          0,
 		})
 	}
 
 	// sort by the result scores
-	sort.Slice(resultSet.Results[:], func(i int, j int) bool {
-		return scoredResultSet[i].score < scoredResultSet[j].score
+	sort.Slice(results[:], func(i int, j int) bool {
+		return results[i].Score < results[j].Score
 	})
+
+	return results
 }
 
-func scoreResult(result RankedResult) RankedResult {
+func scoreResult(result entity.RankedSearchResult) entity.RankedSearchResult {
 	var scoredResult = result
 	for _, pass := range scoringPasses {
 		scoredResult = pass.Score(result)

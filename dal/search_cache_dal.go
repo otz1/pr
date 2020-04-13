@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"github.com/getsentry/sentry-go"
 	"github.com/go-redis/redis"
+	"github.com/otz1/pr/conv"
+	"github.com/otz1/pr/entity"
 	"log"
 	"os"
 	"time"
@@ -14,7 +16,7 @@ type SearchResultCacheDAL struct {
 	client *redis.Client
 }
 
-func (s *SearchResultCacheDAL) Store(query string, resultSet *SearchResultSet) error {
+func (s *SearchResultCacheDAL) Store(query string, resultSet *entity.SearchResultSet) error {
 	jsonData, err := resultSet.ToJSON()
 	if err == nil {
 		s.client.Set(s.Hash(query), jsonData, time.Hour * 3)
@@ -25,13 +27,13 @@ func (s *SearchResultCacheDAL) Store(query string, resultSet *SearchResultSet) e
 }
 
 // TODO should we distinguish nil from cache miss to genuine error
-func (s *SearchResultCacheDAL) Query(query string) *SearchResultSet {
+func (s *SearchResultCacheDAL) Query(query string) *entity.SearchResultSet {
 	result, err := s.client.Get(s.Hash(query)).Result()
 	if err != nil {
 		sentry.CaptureException(err)
 		return nil
 	}
-	return jsonToSearchResultSet([]byte(result))
+	return conv.JSONToSearchResultSet([]byte(result))
 }
 
 func NewSearchResultCacheDAL() *SearchResultCacheDAL {

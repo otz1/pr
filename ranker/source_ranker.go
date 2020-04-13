@@ -1,15 +1,17 @@
 package ranker
 
+import "github.com/otz1/pr/entity"
+
 type sourceRanker struct {}
 
-func (s *sourceRanker) Score(result RankedResult) RankedResult {
-	newScore := result.score
+func (s *sourceRanker) Score(result entity.RankedSearchResult) entity.RankedSearchResult {
+	newScore := result.Score
 
 	// TODO do some stuff like decrease if wikipedia.
 
-	return RankedResult{
-		result.originalResult,
-		newScore,
+	return entity.RankedSearchResult{
+		Result: result.Result,
+		Score:  newScore,
 	}
 }
 
