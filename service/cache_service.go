@@ -1,13 +1,16 @@
 package service
 
-import "github.com/otz1/pr/dal"
+import (
+	"github.com/otz1/pr/dal"
+	"github.com/otz1/pr/entity"
+)
 
 type CacheService struct {
 	cacheDAL dal.ResultCacheDAL
 }
 
 // TODO site code!
-func (c *CacheService) Store(query string, results *dal.SearchResultSet) bool {
+func (c *CacheService) Store(query string, results *entity.SearchResultSet) bool {
 	err := c.cacheDAL.Store(query, results)
 	return err == nil
 }
@@ -17,7 +20,7 @@ func (c *CacheService) Contains(query string) bool {
 }
 
 // TODO site code!
-func (c *CacheService) Query(query string) *dal.SearchResultSet {
+func (c *CacheService) Query(query string) *entity.SearchResultSet {
 	return c.cacheDAL.Query(query)
 }
 

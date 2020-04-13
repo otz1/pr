@@ -30,7 +30,8 @@ func Fetch(c *gin.Context) {
 		return
 	}
 
-	fetchResource.Fetch(pageRankReq.Query)
+	resp := fetchResource.Fetch(pageRankReq.Query)
+	c.JSON(http.StatusOK, resp)
 }
 
 func main() {
