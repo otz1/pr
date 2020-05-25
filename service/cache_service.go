@@ -9,7 +9,6 @@ type CacheService struct {
 	cacheDAL dal.ResultCacheDAL
 }
 
-// TODO site code!
 func (c *CacheService) Store(query string, results *entity.SearchResultSet) bool {
 	err := c.cacheDAL.Store(query, results)
 	return err == nil
@@ -19,7 +18,6 @@ func (c *CacheService) Contains(query string) bool {
 	return c.cacheDAL.Query(query) == nil
 }
 
-// TODO site code!
 func (c *CacheService) Query(query string) *entity.SearchResultSet {
 	return c.cacheDAL.Query(query)
 }

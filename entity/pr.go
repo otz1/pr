@@ -2,9 +2,10 @@ package entity
 
 import (
 	"errors"
+	"time"
+
 	"github.com/getsentry/sentry-go"
 	jsoniter "github.com/json-iterator/go"
-	"time"
 )
 
 type RankedSearchResult struct {
@@ -22,8 +23,6 @@ type PageRankRequest struct {
 }
 
 type PageRankResponse struct {
-	// TODO we should convert into entities
-	// rather than reuse the data objects from the DAL
 	Results []RankedSearchResult `json:"results"`
 }
 
