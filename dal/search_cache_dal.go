@@ -2,13 +2,14 @@ package dal
 
 import (
 	"fmt"
+	"log"
+	"os"
+	"time"
+
 	"github.com/getsentry/sentry-go"
 	"github.com/go-redis/redis"
 	"github.com/otz1/pr/conv"
 	"github.com/otz1/pr/entity"
-	"log"
-	"os"
-	"time"
 )
 
 type SearchResultCacheDAL struct {
@@ -19,14 +20,13 @@ type SearchResultCacheDAL struct {
 func (s *SearchResultCacheDAL) Store(query string, resultSet *entity.SearchResultSet) error {
 	jsonData, err := resultSet.ToJSON()
 	if err == nil {
-		s.client.Set(s.Hash(query), jsonData, time.Hour * 3)
+		s.client.Set(s.Hash(query), jsonData, time.Hour*3)
 		return nil
 	}
 	sentry.CaptureException(err)
 	return fmt.Errorf("failed to cache search results for query '%s'", query)
 }
 
-// TODO should we distinguish nil from cache miss to genuine error
 func (s *SearchResultCacheDAL) Query(query string) *entity.SearchResultSet {
 	result, err := s.client.Get(s.Hash(query)).Result()
 	if err != nil {

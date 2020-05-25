@@ -10,7 +10,6 @@ type ScraperService struct {
 }
 
 func (s *ScraperService) Scrape(query string) *entity.ScrapeResponse {
-	// TODO move the keyword term stuff into here.
 	return s.scraperClient.Scrape(query)
 }
 
